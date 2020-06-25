@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2020 by johncollier (http://jsbin.com/qureyap/4/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>HW 2</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+<body>
+<div id="Ridership"></div>
+  </br>
+<div id="Turnstile"></div>
+<script id="jsbin-javascript">
+Promise.all([
+  d3.csv("https://raw.githubusercontent.com/johncollier/Subway-COVID/master/BusRidership.csv"),
+  d3.csv("https://raw.githubusercontent.com/johncollier/Subway-COVID/master/SubwayRidership.csv"),
+  d3.csv("https://raw.githubusercontent.com/johncollier/Subway-COVID/master/MTA_Entries.csv")
+]).then(function(data) {
+  
+  
+  var Bus = data[0]
+    .sort(function(a, b) {
+    var dateA = new Date(a.Date), dateB = new Date(b.Date);
+    return dateA - dateB;})
+    .map(obj => ([
+    obj['Date'],
+    obj['Total Estimated Ridership']  
+    ]));  
+      
+  var BusDates = Bus.map(x => x[0]);
+  var BusRidership = Bus.map(x => x[1]);
+    
+  var Subway = data[1].map(obj => ([
+  obj['Date'],
+  obj['Total Estimated Ridership']  
+  ]));
+  
+  var SubwayDates = Subway.map(x => x[0]);
+  var SubwayRidership = Subway.map(x => x[1]);
+  
+  var Turnstile = data[2]
+    .sort(function(a, b) {
+    var dateA = new Date(a.date), dateB = new Date(b.date);
+    return dateA - dateB;})
+    .map(obj => ([
+    obj['date'],
+    obj['entries_diff']  
+    ])); 
+  
+  var MTADates = Turnstile.map(x => x[0]);
+  var MTAEntries = Turnstile.map(x => x[1]);
+ 
+  
+  var BusTrace = {
+  type: "scatter",
+  mode: "lines",
+  x: BusDates,
+  y: BusRidership,
+  name: "Bus Ridership",
+  line: {
+    dash: 'dot',
+    color: '#003366',
+    width: 2
+  }
+}
+
+  var SubwayTrace = {
+  type: "scatter",
+  mode: "lines",
+  x: SubwayDates,
+  y: SubwayRidership,
+  name: "Subway Ridership",
+  line: {color: '#CD5C5C'}
+}
+  
+  var TurnstileTrace = {
+  type: "scatter",
+  mode: "lines",
+  x: MTADates,
+  y: MTAEntries,
+  name: "Subway Turnstile Entries",
+  line: {color: '#ef962d'}
+}
+  
+  var ridershiptraces = [BusTrace,SubwayTrace];
+
+  var layout1 = {
+  height: 500,
+  width: 1000,
+  title: 'MTA Estimated Ridership (Subway vs Buses)',
+  yaxis: {
+    title: {text: 'Estimated Ridership'}},
+  annotations: [
+    {
+      x: "6/7/2020",
+      y: 50,
+      xref: 'x',
+      yref: 'y',
+      text: 'Phase 1 Begins',
+      showarrow: true,
+      arrowhead: 6,
+      ax: 0,
+      ay: -300
+    },
+    {
+      x: "3/15/2020",
+      y: 50,
+      xref: 'x',
+      yref: 'y',
+      text: 'City Shuts Down',
+      showarrow: true,
+      arrowhead: 6,
+      ax: 0,
+      ay: -300
+    }
+  ]
+  };
+  
+  var layout2 = {
+  height: 500,
+  width: 1000,
+  title: 'MTA Turnstile Entries by Day',
+  yaxis: {
+    title: {text: 'Turnstile Entries (Aggregated)'}},
+      annotations: [
+    {
+      x: "6/7/2020",
+      y: 50,
+      xref: 'x',
+      yref: 'y',
+      text: 'Phase 1 Begins',
+      showarrow: true,
+      arrowhead: 6,
+      ax: 0,
+      ay: -300
+    },
+    {
+      x: "3/15/2020",
+      y: 50,
+      xref: 'x',
+      yref: 'y',
+      text: 'City Shuts Down',
+      showarrow: true,
+      arrowhead: 6,
+      ax: 0,
+      ay: -300
+    }
+  ]
+  };
+  
+
+Plotly.newPlot('Ridership', ridershiptraces,layout1);
+
+Plotly.newPlot('Turnstile', [TurnstileTrace],layout2);
+
+  
+  
+
+});
+</script>
+</body>
+</html>
